@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
@@ -7,7 +8,7 @@ import 'package:reviz/scanner.dart';
 import 'package:reviz/update.dart';
 import 'package:reviz/urls.dart';
 import 'dart:async';
-
+import 'utils.dart';
 import 'facility.dart';
 
 class CreateDevice extends StatefulWidget {
@@ -28,12 +29,6 @@ class _CreateDeviceState extends State<CreateDevice> {
   TextEditingController controllerDeviceName = TextEditingController();
   TextEditingController controllerQrText = TextEditingController();
   late Device lookupDevice;
-
-
-  Future<Device> _retrieveDevices(String qr) async {
-    var response = json.decode((await widget.client.get(getDeviceUrl(qr))).body);
-    return Device.fromMap(response);
-  }
 
 
   Widget build(BuildContext context) {
@@ -70,22 +65,37 @@ class _CreateDeviceState extends State<CreateDevice> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ElevatedButton(onPressed: () {
+              ElevatedButton(onPressed: () async {
                 Device device = Device(facility: widget.facility, deviceName: controllerDeviceName.text, qrText: controllerQrText.text);
-                widget.client.post(createUrl(),headers: <String, String>{
-                  'Content-Type': 'application/json; charset=UTF-8',},
-                  body: json.encode(device.toMap()));
-                Navigator.pop(context);
+                bool exist = false;
+                await Utils.existDevice(widget.client, controllerQrText.text).then((value) {exist = value;});
+                if (!exist) {
+                  print('KOKOT');
+                  print(exist);
+                  print(controllerQrText.text);
+                  Utils.createDevice(widget.client, device);
+                  Navigator.pop(context);
+                }
+                else {
+                  print("Device exists");
+                }
                 }, child: const Text("Create device")),
               ElevatedButton(onPressed: () async {
-                await _retrieveDevices(controllerQrText.text).then((value) => lookupDevice = value);
-                await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => UpdateDevice(
-                        client: widget.client,
-                        editDevice: lookupDevice,
-                        facilitiesName: widget.facilitiesName,
-                        facilitiesId: widget.facilitiesId)));
-                controllerQrText.clear();
+                try {
+                  await Utils.retrieveDevice(
+                      widget.client, controllerQrText.text).then((value) =>
+                  lookupDevice = value);
+                  await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => UpdateDevice(
+                          client: widget.client,
+                          editDevice: lookupDevice,
+                          facilitiesName: widget.facilitiesName,
+                          facilitiesId: widget.facilitiesId)));
+                  controllerQrText.clear();
+                }
+                on HttpException catch (e) {
+                  print("Exception: $e");
+                }
               }, child: const Text("Search device")),
             ],
           )
