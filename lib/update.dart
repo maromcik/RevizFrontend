@@ -10,10 +10,11 @@ import 'package:reviz/urls.dart';
 class UpdateDevice extends StatefulWidget {
   final Client client;
   final Device editDevice;
-  final Map<String, Facility> facilities;
+  final Map<String, Facility> facilitiesName;
+  final Map<int, Facility> facilitiesId;
   const UpdateDevice({
     Key? key,
-    required this.client, required this.editDevice, required this.facilities
+    required this.client, required this.editDevice, required this.facilitiesName, required this.facilitiesId
   }) : super(key: key);
 
   @override
@@ -23,12 +24,15 @@ class UpdateDevice extends StatefulWidget {
 class _UpdateDeviceState extends State<UpdateDevice> {
   TextEditingController controllerDeviceName = TextEditingController();
   String qrText = "";
-  Map<String, Facility> facilities = HashMap();
-  late String facility;
+  Map<String, Facility> facilitiesName = HashMap();
+  Map<int, Facility> facilitiesId = HashMap();
+  String facility = "";
   initState() {
     controllerDeviceName.text = widget.editDevice.deviceName;
     qrText = widget.editDevice.qrText;
-    facilities = widget.facilities;
+    facilitiesName = widget.facilitiesName;
+    facilitiesId = widget.facilitiesId;
+    facility = facilitiesId[widget.editDevice.facility]!.facilityName;
     super.initState();
   }
   @override
@@ -38,7 +42,9 @@ class _UpdateDeviceState extends State<UpdateDevice> {
           title: Text("Update device")),
       body: Column(
         children: [
-          DropdownButtonFormField<String>(items: facilities.keys.toList().map((String value){
+          DropdownButtonFormField<String>(
+              hint: Text(facilitiesId[widget.editDevice.facility]!.facilityName),
+              items: facilitiesName.keys.toList().map((String value) {
             return DropdownMenuItem<String>(
               value: value,
               child: Text(value),);
@@ -50,7 +56,7 @@ class _UpdateDeviceState extends State<UpdateDevice> {
           },),
           TextFormField(controller: controllerDeviceName, maxLines: 1,),
           ElevatedButton(onPressed: () {
-            Device newDevice = Device(facility: facilities[facility]!.id, deviceName: controllerDeviceName.text, qrText: qrText);
+            Device newDevice = Device(facility: facilitiesName[facility]!.id, deviceName: controllerDeviceName.text, qrText: qrText);
             widget.client.put(updateUrl(qrText),headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',},
                 body: json.encode(newDevice.toMap()));

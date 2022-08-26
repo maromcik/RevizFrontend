@@ -102,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _deleteDevice(String qr) async {
     await client.delete(deleteUrl(qr));
-    _retrieveDevices();
+    _retrieveDevicesByFacility(facility);
   }
 
   void _updateDevice() {}
@@ -168,15 +168,19 @@ class _MyHomePageState extends State<MyHomePage> {
             itemBuilder: (BuildContext context, int index) {
               return ListTile(
                 title: Text("Device name: ${devices[index].deviceName}\nFacility: ${facilitiesId[devices[index].facility]!.facilityName}\nDevice QR ID: ${devices[index].qrText}"),
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => UpdateDevice(client: client, editDevice: devices[index],facilities: facilitiesName))),
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => UpdateDevice(client: client, editDevice: devices[index],facilitiesName: facilitiesName, facilitiesId: facilitiesId))).then((_) => _retrieveDevicesByFacility(facility));
+                  },
                 trailing: IconButton(icon: const Icon(Icons.delete), onPressed: () => _deleteDevice(devices[index].qrText),),
             );}
           ),]
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateDevice(client: client, facility: facilitiesName[facility]!.id))),
-        tooltip: 'Increment',
+        onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateDevice(client: client, facility: facilitiesName[facility]!.id))).then((_) => _retrieveDevicesByFacility(facility));
+        },
+        tooltip: 'Create new device',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
