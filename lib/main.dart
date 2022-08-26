@@ -200,7 +200,8 @@ class _MyHomePageState extends State<MyHomePage> {
           print("navigating away");
           await Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => CreateDevice(
-                  client: client, facility: facilitiesName[facility]!.id)));
+                  client: client, facility: facilitiesName[facility]!.id, facilitiesName: facilitiesName,
+                  facilitiesId: facilitiesId)));
           print("navigating back, retrieving");
           _retrieveDevicesByFacility(facility);
           print("retrieved");
