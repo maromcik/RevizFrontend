@@ -11,13 +11,13 @@ import 'create.dart';
 import 'update.dart';
 import 'urls.dart';
 
-
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -93,7 +93,8 @@ class _MyHomePageState extends State<MyHomePage> {
       List response = json.decode((await client.get(getUrl())).body);
       _processResponseDevice(response);
     } else {
-      List response = json.decode((await client.get(getDevicesByFacilityUrl(facilityName))).body);
+      List response = json.decode(
+          (await client.get(getDevicesByFacilityUrl(facilityName))).body);
       _processResponseDevice(response);
     }
   }
@@ -114,11 +115,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   showAlertDialog(BuildContext context) {
-
     // set up the button
     Widget okButton = TextButton(
       child: Text("OK"),
-      onPressed: () { },
+      onPressed: () {},
     );
 
     // set up the AlertDialog
@@ -142,43 +142,68 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: RefreshIndicator (
-        onRefresh: () async {
-          _retrieveDevicesByFacility(facility);
-        },
-        child: Column(
-        children: <Widget>[
-          DropdownButtonFormField<String>(items: facilitiesNames.map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),);
-          }).toList(), onChanged: (value) {
-            setState(() {
-                facility = value ?? "--all--";
-            });
-            _retrieveDevicesByFacility(facility);
-          },),
-          ListView.builder(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: devices.length,
-            itemBuilder: (BuildContext context, int index) {
-              return ListTile(
-                title: Text("Device name: ${devices[index].deviceName}\nFacility: ${facilitiesId[devices[index].facility]!.facilityName}\nDevice QR ID: ${devices[index].qrText}"),
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => UpdateDevice(client: client, editDevice: devices[index],facilitiesName: facilitiesName, facilitiesId: facilitiesId))).then((_) => _retrieveDevicesByFacility(facility));
+      body: SingleChildScrollView(
+        child: RefreshIndicator(
+            onRefresh: () async {
+              _retrieveDevicesByFacility(facility);
+            },
+            child: Column(children: <Widget>[
+                DropdownButtonFormField<String>(
+                  items: facilitiesNames.map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      facility = value ?? "--all--";
+                    });
+                    _retrieveDevicesByFacility(facility);
                   },
-                trailing: IconButton(icon: const Icon(Icons.delete), onPressed: () => _deleteDevice(devices[index].qrText),),
-            );}
-          ),]
-        ),
+                ),
+                ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    itemCount: devices.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                        title: Text(
+                            "Device name: ${devices[index].deviceName}\nFacility: ${facilitiesId[devices[index].facility]!.facilityName}\nDevice QR ID: ${devices[index].qrText}"),
+                        onTap: () async {
+                          print("navigating away");
+                          await Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => UpdateDevice(
+                                  client: client,
+                                  editDevice: devices[index],
+                                  facilitiesName: facilitiesName,
+                                  facilitiesId: facilitiesId)));
+                          print("navigating back, retrieving");
+                          _retrieveDevicesByFacility(facility);
+                          print("retrieved");
+                        },
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () => _deleteDevice(devices[index].qrText),
+                        ),
+                      );
+                    }),
+              ]),
+            ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateDevice(client: client, facility: facilitiesName[facility]!.id))).then((_) => _retrieveDevicesByFacility(facility));
+        onPressed: () async {
+          print("navigating away");
+          await Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => CreateDevice(
+                  client: client, facility: facilitiesName[facility]!.id)));
+          print("navigating back, retrieving");
+          _retrieveDevicesByFacility(facility);
+          print("retrieved");
         },
         tooltip: 'Create new device',
         child: const Icon(Icons.add),
