@@ -96,15 +96,15 @@ class _UpdateDeviceState extends State<UpdateDevice> {
             children: [
               ElevatedButton(
                   onPressed: () {
-                    _updateDevice();
-                  },
-                  child: Text("Update device")),
-              ElevatedButton(
-                  onPressed: () {
                     Utils.deleteDevice(widget.client, controllerQrText.text);
                     Navigator.pop(context);
                   },
-                  child: Text("Delete device")),
+                  child: const Text("Delete device")),
+              ElevatedButton(
+                  onPressed: () {
+                    _updateDevice();
+                  },
+                  child: const Text("Update device")),
             ],
           )
         ],

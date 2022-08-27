@@ -55,31 +55,20 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _processResponseDevice(List response) {
-    response.forEach((element) {
+    for (var element in response) {
       devices.add(Device.fromMap(element));
-    });
+    }
     setState(() {});
   }
 
   _processResponseFacilities(List response) {
-    response.forEach((element) {
+    for (var element in response) {
       Facility facility = Facility.fromMap(element);
       facilitiesName.addAll({facility.facilityName: facility});
       facilitiesId.addAll({facility.id: facility});
-    });
+    }
     facilitiesNames.addAll(facilitiesName.keys.toList());
     setState(() {});
-  }
-
-  int _getFacilityId(String fac) {
-    if (fac == "") {
-      showAlertDialog(context);
-      return -1;
-    }
-    if (!facilitiesName.containsKey(fac)) {
-      showAlertDialog(context);
-    }
-    return facilitiesName[facility]!.id;
   }
 
   _retrieveDevices() async {
@@ -98,11 +87,6 @@ class _MyHomePageState extends State<MyHomePage> {
           (await client.get(getDevicesByFacilityUrl(facilityName))).body);
       _processResponseDevice(response);
     }
-  }
-
-  void _deleteDevice(String qr) async {
-    await client.delete(deleteUrl(qr));
-    _retrieveDevicesByFacility(facility);
   }
 
   _getFacilities() async {
