@@ -148,7 +148,7 @@ class _MyHomePageState extends State<MyHomePage> {
           _retrieveDevicesByFacility(facility);
         },
         child: SingleChildScrollView(
-          physics: ScrollPhysics(),
+          physics: AlwaysScrollableScrollPhysics(),
           child: Column(
             children: [
               DropdownButtonFormField<String>(
