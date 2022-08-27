@@ -99,14 +99,10 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _createDevice() {}
-
   void _deleteDevice(String qr) async {
     await client.delete(deleteUrl(qr));
     _retrieveDevicesByFacility(facility);
   }
-
-  void _updateDevice() {}
 
   _getFacilities() async {
     facilitiesName.clear();
