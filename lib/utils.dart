@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart';
 import 'package:reviz/device.dart';
-import 'package:reviz/scanner.dart';
+import 'package:reviz/scannerUtils.dart';
 import 'package:reviz/update.dart';
 import 'package:reviz/urls.dart';
 
@@ -32,6 +32,10 @@ class Utils {
         body: json.encode(device.toMap()));
   }
 
+
+  static void deleteDevice(Client client, String qr) async {
+    await client.delete(deleteUrl(qr));
+  }
 
 
 }

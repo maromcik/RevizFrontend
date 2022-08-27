@@ -111,6 +111,30 @@ class _MyHomePageState extends State<MyHomePage> {
     _processResponseFacilities(response);
   }
 
+  _createDevice() async {
+    if (!facilitiesName.containsKey(facility)) {
+      print("Facility must be set");
+      return;
+    }
+    await Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => CreateDevice(
+            client: client,
+            facility: facilitiesName[facility]!.id,
+            facilitiesName: facilitiesName,
+            facilitiesId: facilitiesId)));
+    _retrieveDevicesByFacility(facility);
+  }
+
+  _updateDevice(int index) async {
+    await Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => UpdateDevice(
+            client: client,
+            editDevice: devices[index],
+            facilitiesName: facilitiesName,
+            facilitiesId: facilitiesId)));
+    _retrieveDevicesByFacility(facility);
+  }
+
   showAlertDialog(BuildContext context) {
     // set up the button
     Widget okButton = TextButton(
@@ -173,17 +197,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     return ListTile(
                       title: Text(
                           "Device name: ${devices[index].deviceName}\nFacility: ${facilitiesId[devices[index].facility]!.facilityName}\nDevice QR ID: ${devices[index].qrText}"),
-                      onTap: () async {
-                        print("navigating away");
-                        await Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => UpdateDevice(
-                                client: client,
-                                editDevice: devices[index],
-                                facilitiesName: facilitiesName,
-                                facilitiesId: facilitiesId)));
-                        print("navigating back, retrieving");
-                        _retrieveDevicesByFacility(facility);
-                        print("retrieved");
+                      onTap: () {
+                        _updateDevice(index);
                       },
                       trailing: IconButton(
                         icon: const Icon(Icons.delete),
@@ -196,17 +211,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          print("navigating away");
-          await Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => CreateDevice(
-                  client: client,
-                  facility: facilitiesName[facility]!.id,
-                  facilitiesName: facilitiesName,
-                  facilitiesId: facilitiesId)));
-          print("navigating back, retrieving");
-          _retrieveDevicesByFacility(facility);
-          print("retrieved");
+        onPressed: () {
+          _createDevice();
         },
         tooltip: 'Create new device',
         child: const Icon(Icons.add),

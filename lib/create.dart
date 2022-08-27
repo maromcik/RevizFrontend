@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:reviz/device.dart';
-import 'package:reviz/scanner.dart';
+import 'package:reviz/scannerUtils.dart';
 import 'package:reviz/update.dart';
 import 'package:reviz/urls.dart';
 import 'dart:async';
@@ -34,6 +34,46 @@ class _CreateDeviceState extends State<CreateDevice> {
   TextEditingController controllerQrText = TextEditingController();
   late Device lookupDevice;
 
+  _searchDevice() async {
+      try {
+        await Utils.retrieveDevice(
+            widget.client, controllerQrText.text)
+            .then((value) => lookupDevice = value);
+        await Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) =>
+                UpdateDevice(
+                    client: widget.client,
+                    editDevice: lookupDevice,
+                    facilitiesName: widget.facilitiesName,
+                    facilitiesId: widget.facilitiesId)));
+        controllerQrText.clear();
+      } on HttpException catch (e) {
+        print("Exception: $e");
+      }
+    }
+
+
+    _createDevice() async {
+      Device device = Device(
+          facility: widget.facility,
+          deviceName: controllerDeviceName.text,
+          qrText: controllerQrText.text);
+      bool exist = false;
+      await Utils.existDevice(
+          widget.client, controllerQrText.text)
+          .then((value) {
+        exist = value;
+      });
+      if (!exist) {
+        print(controllerQrText.text);
+        Utils.createDevice(widget.client, device);
+        Navigator.pop(context);
+      } else {
+        print("Device exists");
+      }
+    }
+
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Create or modify device")),
@@ -59,15 +99,17 @@ class _CreateDeviceState extends State<CreateDevice> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton(
-                            onPressed: () {
-                              Scanner.scanBarcodeNormal().then(
+                            onPressed: () async {
+                              await Scanner.scanBarcodeNormal().then(
                                   (value) => controllerQrText.text = value);
+                              _searchDevice();
                             },
                             child: Text('Start barcode scan')),
                         ElevatedButton(
-                            onPressed: () {
-                              Scanner.scanQR().then(
+                            onPressed: () async {
+                              await Scanner.scanQR().then(
                                   (value) => controllerQrText.text = value);
+                              _searchDevice();
                             },
                             child: Text('Start QR scan')),
                       ],
@@ -77,45 +119,10 @@ class _CreateDeviceState extends State<CreateDevice> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                  onPressed: () async {
-                    Device device = Device(
-                        facility: widget.facility,
-                        deviceName: controllerDeviceName.text,
-                        qrText: controllerQrText.text);
-                    bool exist = false;
-                    await Utils.existDevice(
-                            widget.client, controllerQrText.text)
-                        .then((value) {
-                      exist = value;
-                    });
-                    if (!exist) {
-                      print('KOKOT');
-                      print(exist);
-                      print(controllerQrText.text);
-                      Utils.createDevice(widget.client, device);
-                      Navigator.pop(context);
-                    } else {
-                      print("Device exists");
-                    }
-                  },
+                  onPressed: () async {_createDevice();},
                   child: const Text("Create device")),
               ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      await Utils.retrieveDevice(
-                              widget.client, controllerQrText.text)
-                          .then((value) => lookupDevice = value);
-                      await Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => UpdateDevice(
-                              client: widget.client,
-                              editDevice: lookupDevice,
-                              facilitiesName: widget.facilitiesName,
-                              facilitiesId: widget.facilitiesId)));
-                      controllerQrText.clear();
-                    } on HttpException catch (e) {
-                      print("Exception: $e");
-                    }
-                  },
+                  onPressed: () {_searchDevice();},
                   child: const Text("Search device")),
             ],
           )
