@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:reviz/device.dart';
 import 'package:reviz/facility.dart';
-import 'package:reviz/scannerUtils.dart';
 import 'package:reviz/urls.dart';
 import 'package:reviz/utils.dart';
 import 'package:reviz/scannerWidget.dart';
@@ -32,23 +31,26 @@ class _UpdateDeviceState extends State<UpdateDevice> {
   TextEditingController controllerDeviceName = TextEditingController();
   TextEditingController controllerQrText = TextEditingController();
 
-  Map<String, Facility> facilitiesName = HashMap();
-  Map<int, Facility> facilitiesId = HashMap();
   String facility = "";
 
   @override
   initState() {
     controllerDeviceName.text = widget.editDevice.deviceName;
     controllerQrText.text = widget.editDevice.qrText;
-    facilitiesName = widget.facilitiesName;
-    facilitiesId = widget.facilitiesId;
-    facility = facilitiesId[widget.editDevice.facility]!.facilityName;
+    facility = widget.facilitiesId[widget.editDevice.facility]!.facilityName;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    controllerQrText.dispose();
+    controllerDeviceName.dispose();
+    super.dispose();
   }
 
   _updateDevice() async {
     Device newDevice = Device(
-        facility: facilitiesName[facility]!.id,
+        facility: widget.facilitiesName[facility]!.id,
         deviceName: controllerDeviceName.text,
         qrText: controllerQrText.text);
     widget.client.put(updateUrl(widget.editDevice.qrText),
@@ -66,8 +68,8 @@ class _UpdateDeviceState extends State<UpdateDevice> {
       body: Column(
         children: [
           DropdownButtonFormField<String>(
-            hint: Text(facilitiesId[widget.editDevice.facility]!.facilityName),
-            items: facilitiesName.keys.toList().map((String value) {
+            hint: Text(widget.facilitiesId[widget.editDevice.facility]!.facilityName),
+            items: widget.facilitiesName.keys.toList().map((String value) {
               return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value),

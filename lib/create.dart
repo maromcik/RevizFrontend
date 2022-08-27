@@ -35,6 +35,19 @@ class _CreateDeviceState extends State<CreateDevice> {
   TextEditingController controllerQrText = TextEditingController();
   late Device lookupDevice;
 
+
+
+  @override
+  initState() {
+    super.initState();
+  }
+  @override
+  void dispose() {
+    controllerQrText.dispose();
+    controllerDeviceName.dispose();
+    super.dispose();
+  }
+
   _searchDevice() async {
       try {
         await Utils.retrieveDevice(
