@@ -8,6 +8,7 @@ import 'package:reviz/facility.dart';
 import 'package:reviz/scannerUtils.dart';
 import 'package:reviz/urls.dart';
 import 'package:reviz/utils.dart';
+import 'package:reviz/scannerWidget.dart';
 
 class UpdateDevice extends StatefulWidget {
   final Client client;
@@ -78,38 +79,18 @@ class _UpdateDeviceState extends State<UpdateDevice> {
               });
             },
           ),
-          TextFormField(
-            controller: controllerDeviceName,
-            maxLines: 1,
-          ),
+          const Text("Device QR"),
           TextFormField(
             controller: controllerQrText,
             maxLines: 1,
           ),
-          Container(
-              alignment: Alignment.center,
-              child: Flex(
-                  direction: Axis.vertical,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton(
-                            onPressed: () {
-                              Scanner.scanBarcodeNormal().then(
-                                  (value) => controllerQrText.text = value);
-                            },
-                            child: Text('Start barcode scan')),
-                        ElevatedButton(
-                            onPressed: () {
-                              Scanner.scanQR().then(
-                                  (value) => controllerQrText.text = value);
-                            },
-                            child: Text('Start QR scan')),
-                      ],
-                    ),
-                  ])),
+          ScannerWidgetContainer(controller: controllerQrText),
+          const Text("Device name"),
+          TextFormField(
+            controller: controllerDeviceName,
+            maxLines: 1,
+          ),
+          ScannerWidgetContainer(controller: controllerDeviceName),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [

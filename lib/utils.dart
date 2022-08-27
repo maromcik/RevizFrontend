@@ -37,7 +37,6 @@ class Utils {
     await client.delete(deleteUrl(qr));
   }
 
-
 }
 
 

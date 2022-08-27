@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:reviz/device.dart';
 import 'package:reviz/scannerUtils.dart';
+import 'package:reviz/scannerWidget.dart';
 import 'package:reviz/update.dart';
 import 'package:reviz/urls.dart';
 import 'dart:async';
@@ -52,7 +53,6 @@ class _CreateDeviceState extends State<CreateDevice> {
       }
     }
 
-
     _createDevice() async {
       Device device = Device(
           facility: widget.facility,
@@ -67,11 +67,14 @@ class _CreateDeviceState extends State<CreateDevice> {
       if (!exist) {
         print(controllerQrText.text);
         Utils.createDevice(widget.client, device);
-        Navigator.pop(context);
+        controllerDeviceName.clear();
+        controllerQrText.clear();
+        print("Device successfully created");
       } else {
         print("Device exists");
       }
     }
+
 
 
   Widget build(BuildContext context) {
@@ -80,54 +83,59 @@ class _CreateDeviceState extends State<CreateDevice> {
       body: Column(
         children: [
           TextFormField(
-            controller: controllerDeviceName,
-            maxLines: 1,
-            decoration: const InputDecoration(hintText: "Enter device name"),
-          ),
-          TextFormField(
             controller: controllerQrText,
             maxLines: 1,
             decoration: const InputDecoration(hintText: "Enter QR ID"),
           ),
-          Container(
-              alignment: Alignment.center,
-              child: Flex(
-                  direction: Axis.vertical,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton(
-                            onPressed: () async {
-                              await Scanner.scanBarcodeNormal().then(
-                                  (value) => controllerQrText.text = value);
-                              _searchDevice();
-                            },
-                            child: Text('Start barcode scan')),
-                        ElevatedButton(
-                            onPressed: () async {
-                              await Scanner.scanQR().then(
-                                  (value) => controllerQrText.text = value);
-                              _searchDevice();
-                            },
-                            child: Text('Start QR scan')),
-                      ],
-                    ),
-                  ])),
+          scannerContainer(controllerQrText),
+          TextFormField(
+            controller: controllerDeviceName,
+            maxLines: 1,
+            decoration: const InputDecoration(hintText: "Enter device name"),
+          ),
+          ScannerWidgetContainer(controller: controllerDeviceName,),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                  onPressed: () async {_createDevice();},
-                  child: const Text("Create device")),
-              ElevatedButton(
                   onPressed: () {_searchDevice();},
                   child: const Text("Search device")),
+              ElevatedButton(
+                  onPressed: () async {_createDevice();},
+                  child: const Text("Create device")),
             ],
           )
         ],
       ),
     );
+  }
+
+  Container scannerContainer(TextEditingController controller) {
+    return Container(
+            alignment: Alignment.center,
+            child: Flex(
+                direction: Axis.vertical,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                          onPressed: () async {
+                            await Scanner.scanQR().then(
+                                    (value) => controller.text = value);
+                            _searchDevice();
+                          },
+                          child: const Text('Start QR scan')),
+                      ElevatedButton(
+                          onPressed: () async {
+                            await Scanner.scanBarcodeNormal().then(
+                                (value) => controller.text = value);
+                            _searchDevice();
+                          },
+                          child: const Text('Start barcode scan')),
+                    ],
+                  ),
+                ]));
   }
 }

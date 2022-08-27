@@ -200,10 +200,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       onTap: () {
                         _updateDevice(index);
                       },
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () => _deleteDevice(devices[index].qrText),
-                      ),
+                      // trailing: IconButton(
+                      //   icon: const Icon(Icons.delete),
+                      //   onPressed: () => _deleteDevice(devices[index].qrText),
+                      // ),
                     );
                   }),
             ],
