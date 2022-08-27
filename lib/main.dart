@@ -144,64 +144,65 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: RefreshIndicator(
-          onRefresh: () async {
-            _retrieveDevicesByFacility(facility);
-          },
-          child:
-              SingleChildScrollView(
-                physics: ScrollPhysics(),
-                child: Column(
-                  children: [
-                    DropdownButtonFormField<String>(
-                      items: facilitiesNames.map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          facility = value ?? "--all--";
-                        });
-                        _retrieveDevicesByFacility(facility);
-                      },
-                    ),
-                    ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: devices.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return ListTile(
-                            title: Text(
-                                "Device name: ${devices[index].deviceName}\nFacility: ${facilitiesId[devices[index].facility]!.facilityName}\nDevice QR ID: ${devices[index].qrText}"),
-                            onTap: () async {
-                              print("navigating away");
-                              await Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => UpdateDevice(
-                                      client: client,
-                                      editDevice: devices[index],
-                                      facilitiesName: facilitiesName,
-                                      facilitiesId: facilitiesId)));
-                              print("navigating back, retrieving");
-                              _retrieveDevicesByFacility(facility);
-                              print("retrieved");
-                            },
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () => _deleteDevice(devices[index].qrText),
-                            ),
-                          );
-                        }),
-                  ],
-                ),
+        onRefresh: () async {
+          _retrieveDevicesByFacility(facility);
+        },
+        child: SingleChildScrollView(
+          physics: ScrollPhysics(),
+          child: Column(
+            children: [
+              DropdownButtonFormField<String>(
+                items: facilitiesNames.map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    facility = value ?? "--all--";
+                  });
+                  _retrieveDevicesByFacility(facility);
+                },
               ),
-            ),
+              ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: devices.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      title: Text(
+                          "Device name: ${devices[index].deviceName}\nFacility: ${facilitiesId[devices[index].facility]!.facilityName}\nDevice QR ID: ${devices[index].qrText}"),
+                      onTap: () async {
+                        print("navigating away");
+                        await Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => UpdateDevice(
+                                client: client,
+                                editDevice: devices[index],
+                                facilitiesName: facilitiesName,
+                                facilitiesId: facilitiesId)));
+                        print("navigating back, retrieving");
+                        _retrieveDevicesByFacility(facility);
+                        print("retrieved");
+                      },
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => _deleteDevice(devices[index].qrText),
+                      ),
+                    );
+                  }),
+            ],
+          ),
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           print("navigating away");
           await Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => CreateDevice(
-                  client: client, facility: facilitiesName[facility]!.id, facilitiesName: facilitiesName,
+                  client: client,
+                  facility: facilitiesName[facility]!.id,
+                  facilitiesName: facilitiesName,
                   facilitiesId: facilitiesId)));
           print("navigating back, retrieving");
           _retrieveDevicesByFacility(facility);
