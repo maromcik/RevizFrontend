@@ -68,7 +68,8 @@ class _UpdateDeviceState extends State<UpdateDevice> {
       body: Column(
         children: [
           DropdownButtonFormField<String>(
-            hint: Text(widget.facilitiesId[widget.editDevice.facility]!.facilityName),
+            hint: Text(
+                widget.facilitiesId[widget.editDevice.facility]!.facilityName),
             items: widget.facilitiesName.keys.toList().map((String value) {
               return DropdownMenuItem<String>(
                 value: value,

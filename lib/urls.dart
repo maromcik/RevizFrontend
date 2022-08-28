@@ -1,4 +1,4 @@
-String ip = "192.168.1.52";
+String ip = "192.168.1.12";
 
 Uri getUrl() {
   return Uri.http("$ip:8000", "/audit/get_devices/");
